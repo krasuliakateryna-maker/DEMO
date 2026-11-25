@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Сервіс — Облік змін та замовлень (Demo)</title>
   <style>
     :root {
@@ -17,40 +17,95 @@
       --warn: #f59e0b;
       --err: #ef4444;
       --border: #334155;
+      --radius: 14px;
     }
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      padding: 16px;
+      padding: 12px 12px calc(84px + env(safe-area-inset-bottom));
+      line-height: 1.4;
     }
-    .container { max-width: 820px; margin: 0 auto; }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
     .card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 16px;
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
     }
-    h1, h2, h3 { margin: 0 0 12px; }
-    h1 { font-size: 20px; }
-    h2 { font-size: 17px; }
-    h3 { font-size: 15px; color: var(--accent); }
-    .muted { color: var(--muted); font-size: 13px; }
-    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .col { flex: 1 1 200px; }
+
+    h1, h2, h3 {
+      margin: 0 0 10px;
+    }
+    h1 { font-size: 19px; }
+    h2 { font-size: 16px; }
+    h3 { font-size: 14px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.03em; }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .field-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .col {
+      flex: 1 1 200px;
+      min-width: 0;
+    }
+
     input, select {
       width: 100%;
+      min-height: 44px;
       padding: 10px 12px;
       border-radius: 10px;
       border: 1px solid var(--border);
       background: var(--card-2);
       color: var(--text);
-      font-size: 14px;
+      font-size: 16px; /* 16px запобігає автозуму на iOS */
     }
-    input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+    input[type="number"] {
+      font-variant-numeric: tabular-nums;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
     button {
+      min-height: 44px;
       padding: 10px 14px;
       border-radius: 10px;
       border: none;
@@ -59,29 +114,102 @@
       font-weight: 600;
       font-size: 14px;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
-    button:hover { background: var(--accent-dark); color: #fff; }
-    button.secondary { background: var(--card-2); color: var(--text); border: 1px solid var(--border); }
-    button.secondary:hover { border-color: var(--accent); }
-    button.ok { background: var(--ok); color: #052e16; }
-    button.warn { background: var(--warn); color: #1c1917; }
-    button.err { background: var(--err); color: #fff; }
+
+    button:active {
+      transform: scale(0.99);
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+      color: #fff;
+    }
+
+    button.secondary {
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    button.secondary:hover {
+      border-color: var(--accent);
+    }
+
+    button.ok {
+      background: var(--ok);
+      color: #052e16;
+    }
+
+    button.warn {
+      background: var(--warn);
+      color: #1c1917;
+    }
+
+    button.err {
+      background: var(--err);
+      color: #fff;
+    }
+
+    button.full-mob {
+      width: 100%;
+    }
+
     .badge {
-      display: inline-block;
-      padding: 4px 10px;
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 600;
       background: var(--card-2);
       border: 1px solid var(--border);
+      max-width: 100%;
     }
-    .badge.ok { border-color: var(--ok); color: var(--ok); }
-    .badge.warn { border-color: var(--warn); color: var(--warn); }
-    .tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-    .tab-btn { background: var(--card-2); color: var(--muted); border: 1px solid var(--border); }
-    .tab-btn.active { background: var(--accent); color: #061320; border-color: var(--accent); }
 
-    .autocomplete-box { position: relative; }
+    .badge.ok {
+      border-color: var(--ok);
+      color: var(--ok);
+      background: rgba(34, 197, 94, 0.1);
+    }
+
+    .badge.warn {
+      border-color: var(--warn);
+      color: var(--warn);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    /* Вкладки керівника */
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      background: var(--card);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 10px 8px;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #061320;
+      border-color: var(--accent);
+    }
+
+    /* Автодоповнення по запчастинах */
+    .autocomplete-box {
+      position: relative;
+    }
+
     .dropdown-list {
       position: absolute;
       top: 100%;
@@ -90,38 +218,140 @@
       background: #0b1220;
       border: 1px solid var(--accent);
       border-radius: 10px;
-      max-height: 240px;
+      max-height: 250px;
       overflow-y: auto;
       z-index: 50;
       margin-top: 4px;
       display: none;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
     }
+
     .dropdown-item {
-      padding: 10px 12px;
+      padding: 12px;
       cursor: pointer;
       border-bottom: 1px solid #1e293b;
+      font-size: 14px;
+      min-height: 44px;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item:hover, .dropdown-item:active {
+      background: var(--card-2);
+    }
+
+    .dropdown-item .sn {
+      display: inline-block;
+      color: var(--accent);
+      font-weight: 700;
+      margin-right: 6px;
+      font-size: 12px;
+    }
+
+    /* Таблиці на десктопі + картки на мобільному */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
       font-size: 13px;
     }
-    .dropdown-item:last-child { border-bottom: none; }
-    .dropdown-item:hover { background: var(--card-2); }
-    .dropdown-item .sn { color: var(--accent); font-weight: 700; margin-right: 6px; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
-    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); }
-    th { color: var(--muted); font-weight: 600; }
+    th, td {
+      text-align: left;
+      padding: 9px 6px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
     .toast {
       position: fixed;
-      bottom: 16px;
-      right: 16px;
+      bottom: calc(14px + env(safe-area-inset-bottom));
+      left: 12px;
+      right: 12px;
+      max-width: 520px;
+      margin: 0 auto;
       background: var(--card-2);
       border: 1px solid var(--accent);
-      padding: 12px 16px;
+      color: var(--text);
+      padding: 12px 14px;
       border-radius: 12px;
-      font-size: 13px;
+      font-size: 14px;
       z-index: 100;
       display: none;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     }
-    .hidden { display: none !important; }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Мобільна адаптація */
+    @media (max-width: 640px) {
+      body {
+        padding: 10px 10px calc(84px + env(safe-area-inset-bottom));
+      }
+      .card {
+        padding: 12px;
+        border-radius: 12px;
+      }
+      .row .col,
+      .row button:not(.icon-btn) {
+        flex: 1 1 100%;
+      }
+      .demo-row button {
+        flex: 1 1 100%;
+      }
+
+      /* Перетворюємо рядки таблиць на компактні мобільні картки */
+      table.mobile-cards thead {
+        display: none;
+      }
+      table.mobile-cards,
+      table.mobile-cards tbody,
+      table.mobile-cards tr,
+      table.mobile-cards td {
+        display: block;
+        width: 100%;
+      }
+      table.mobile-cards tr {
+        background: var(--card-2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 8px;
+      }
+      table.mobile-cards td {
+        border: none;
+        padding: 3px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+      }
+      table.mobile-cards td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      table.mobile-cards td.full-cell {
+        flex-direction: column;
+        align-items: stretch;
+        padding-top: 6px;
+      }
+      table.mobile-cards td.full-cell::before {
+        margin-bottom: 4px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -129,16 +359,22 @@
 
   <!-- ВХІД -->
   <div id="loginScreen" class="card">
-    <h1>Вхід у систему обліку змін (Demo)</h1>
-    <p class="muted">Введіть логін та пароль з аркуша «Працівники» або скористайтеся швидким входом для демо.</p>
-    <div class="row" style="margin-bottom: 12px;">
-      <div class="col"><input id="loginInput" type="text" placeholder="Логін (напр. майстер1 або кер1)" /></div>
-      <div class="col"><input id="passInput" type="password" placeholder="Пароль" /></div>
-      <button onclick="handleLogin()">Увійти</button>
+    <h1>Вхід у систему обліку</h1>
+    <p class="muted" style="margin-top: 0;">Введіть логін та пароль з аркуша «Працівники» або скористайтеся швидким демо-входом.</p>
+    <div class="stack" style="margin-bottom: 14px;">
+      <div>
+        <label class="field-label" for="loginInput">Логін</label>
+        <input id="loginInput" type="text" placeholder="Напр.: майстер1 або кер1" autocomplete="username" />
+      </div>
+      <div>
+        <label class="field-label" for="passInput">Пароль</label>
+        <input id="passInput" type="password" placeholder="Пароль" autocomplete="current-password" />
+      </div>
+      <button class="ok" onclick="handleLogin()">Увійти</button>
     </div>
-    <div class="row">
-      <button class="secondary" onclick="quickDemo('worker')">Демо: Працівник (Модульний ремонт)</button>
-      <button class="secondary" onclick="quickDemo('manager')">Демо: Керівник (Модульний ремонт)</button>
+    <div class="row demo-row">
+      <button class="secondary" onclick="quickDemo('worker')">Демо: Працівник</button>
+      <button class="secondary" onclick="quickDemo('manager')">Демо: Керівник</button>
     </div>
   </div>
 
@@ -146,11 +382,13 @@
   <div id="appScreen" class="hidden">
     <div class="card">
       <div class="row" style="justify-content: space-between;">
-        <div>
-          <h2 id="userTitle" style="margin-bottom: 4px;">Користувач</h2>
+        <div class="col">
+          <h2 id="userTitle" style="margin-bottom: 2px;">Користувач</h2>
           <div class="muted" id="userMeta">Відділ • Роль • Графік перерв</div>
         </div>
-        <button class="secondary" onclick="logout()">Вийти</button>
+        <div>
+          <button class="secondary" onclick="logout()">Вийти</button>
+        </div>
       </div>
     </div>
 
@@ -163,30 +401,32 @@
         </div>
 
         <div id="startTaskForm">
-          <div class="row">
-            <div class="col">
-              <label class="muted">Оберіть вид зайнятості (з аркуша «Види_робіт»)</label>
+          <div class="stack">
+            <div>
+              <label class="field-label" for="taskSelect">Вид зайнятості (з аркуша «Види_робіт»)</label>
               <select id="taskSelect"></select>
             </div>
-            <button class="ok" style="align-self: flex-end;" onclick="startTask()">Почати роботу</button>
+            <button class="ok" onclick="startTask()">Почати роботу</button>
           </div>
         </div>
 
         <div id="finishTaskForm" class="hidden" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
-          <div class="row">
-            <div class="col">
-              <label class="muted">Проміжний / фінальний результат (шт.)</label>
-              <input id="qtyInput" type="number" min="0" placeholder="Наприклад: 3" />
+          <div class="stack">
+            <div>
+              <label class="field-label" for="qtyInput">Проміжний / фінальний результат (шт.)</label>
+              <input id="qtyInput" type="number" inputmode="numeric" min="0" placeholder="Введіть кількість одиниць" />
             </div>
-            <button class="warn" style="align-self: flex-end;" onclick="finishTask('break')">Перед перервою / Змінити зайнятість</button>
-            <button class="err" style="align-self: flex-end;" onclick="finishTask('end')">Завершити зміну</button>
+            <div class="row">
+              <button class="warn" onclick="finishTask('break')">Перед перервою / Змінити зайнятість</button>
+              <button class="err" onclick="finishTask('end')">Завершити зміну</button>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="card">
         <h3>Мій лог за сьогодні</h3>
-        <table>
+        <table class="mobile-cards">
           <thead>
             <tr>
               <th>Час</th>
@@ -206,43 +446,43 @@
       <div class="tabs">
         <button class="tab-btn active" id="tabSummary" onclick="switchManagerTab('summary')">Підсумок дня</button>
         <button class="tab-btn" id="tabDowntime" onclick="switchManagerTab('downtime')">Простої</button>
-        <button class="tab-btn" id="tabOrder" onclick="switchManagerTab('order')">Замовлення з бази</button>
+        <button class="tab-btn" id="tabOrder" onclick="switchManagerTab('order')">Замовлення</button>
       </div>
 
       <!-- ПІДСУМОК ДНЯ -->
       <div id="mgrSummarySection" class="card">
-        <h3>Загальна кількість за день (по видах робіт відділу)</h3>
-        <p class="muted">Введіть загальну підтверджену кількість за день по кожному виду робіт та натисніть «Підтвердити день».</p>
-        <table>
+        <h3>Загальна кількість за день</h3>
+        <p class="muted" style="margin-top: 0;">Перевірте або скоригуйте загальну кількість по кожному виду робіт відділу та підтвердьте день.</p>
+        <table class="mobile-cards">
           <thead>
             <tr>
               <th>Код</th>
               <th>Вид робіт</th>
-              <th>Заявлено працівниками</th>
-              <th>Підтвердити (загалом)</th>
+              <th>Заявлено</th>
+              <th>Підтвердити</th>
             </tr>
           </thead>
           <tbody id="summaryBody"></tbody>
         </table>
         <div style="margin-top: 14px;">
-          <button class="ok" onclick="confirmDaySummary()">Підтвердити загальну кількість за день</button>
+          <button class="ok full-mob" onclick="confirmDaySummary()">Підтвердити загальну кількість за день</button>
         </div>
       </div>
 
       <!-- ПРОСТОЇ -->
       <div id="mgrDowntimeSection" class="card hidden">
         <h3>Фіксація простою</h3>
-        <div class="row" style="margin-bottom: 12px;">
-          <div class="col">
-            <label class="muted">Кого стосується</label>
+        <div class="stack" style="margin-bottom: 14px;">
+          <div>
+            <label class="field-label" for="downtimeTarget">Кого стосується</label>
             <select id="downtimeTarget">
               <option value="Весь відділ">Весь відділ</option>
               <option value="Коваленко Андрій (майстер1)">Коваленко Андрій (майстер1)</option>
               <option value="Мельник Ірина (майстер2)">Мельник Ірина (майстер2)</option>
             </select>
           </div>
-          <div class="col">
-            <label class="muted">Причина простою</label>
+          <div>
+            <label class="field-label" for="downtimeReason">Причина простою</label>
             <select id="downtimeReason">
               <option value="Вимкнення світла">Вимкнення світла</option>
               <option value="Немає запчастин">Немає запчастин</option>
@@ -250,9 +490,9 @@
               <option value="Інше">Інше</option>
             </select>
           </div>
-          <button class="warn" style="align-self: flex-end;" onclick="addDowntime()">Зафіксувати простій</button>
+          <button class="warn" onclick="addDowntime()">Зафіксувати простій</button>
         </div>
-        <table>
+        <table class="mobile-cards">
           <thead>
             <tr>
               <th>Час</th>
@@ -266,23 +506,27 @@
 
       <!-- ЗАМОВЛЕННЯ З БАЗИ -->
       <div id="mgrOrderSection" class="card hidden">
-        <h3>Створити замовлення з «Бази»</h3>
-        <p class="muted">Почніть вводити перші літери назви або серійний номер — оберіть позицію зі списку та вкажіть кількість.</p>
-        <div class="row" style="margin-bottom: 12px;">
-          <div class="col autocomplete-box" style="flex: 2 1 260px;">
-            <label class="muted">Пошук у базі (назва або серійний номер)</label>
+        <h3>Замовлення з «Бази»</h3>
+        <p class="muted" style="margin-top: 0;">Введіть перші літери назви або серійного номера, оберіть позицію та вкажіть кількість.</p>
+        <div class="stack" style="margin-bottom: 14px;">
+          <div class="autocomplete-box">
+            <label class="field-label" for="catalogSearch">Пошук у базі</label>
             <input id="catalogSearch" type="text" placeholder="Напр.: прокл, SN-ADH, 13 pro..." oninput="filterCatalog()" onfocus="filterCatalog()" autocomplete="off" />
             <div id="catalogDropdown" class="dropdown-list"></div>
           </div>
-          <div class="col" style="max-width: 120px;">
-            <label class="muted">Кількість</label>
-            <input id="orderQty" type="number" min="1" value="1" />
+          <div class="row">
+            <div class="col" style="flex: 1 1 120px;">
+              <label class="field-label" for="orderQty">Кількість</label>
+              <input id="orderQty" type="number" inputmode="numeric" min="1" value="1" />
+            </div>
+            <div class="col" style="flex: 1 1 160px; align-self: flex-end;">
+              <button class="full-mob" onclick="addToCart()">Додати в кошик</button>
+            </div>
           </div>
-          <button style="align-self: flex-end;" onclick="addToCart()">Додати</button>
         </div>
 
         <h3>Кошик замовлення</h3>
-        <table>
+        <table class="mobile-cards">
           <thead>
             <tr>
               <th>Серійний номер</th>
@@ -294,7 +538,7 @@
           <tbody id="cartBody"></tbody>
         </table>
         <div style="margin-top: 14px;">
-          <button class="ok" onclick="submitOrder()">Відправити замовлення в таблицю</button>
+          <button class="ok full-mob" onclick="submitOrder()">Відправити замовлення в таблицю</button>
         </div>
       </div>
     </div>
@@ -367,6 +611,14 @@
     { time: "09:15–11:00", code: "MOD-02", user: "Мельник Ірина", dept: "Модульний ремонт", task: "Заміна акумулятора", qty: 4, status: "Завершено" }
   ];
   let downtimes = [];
+
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
 
   function getDeptTasks(dept) {
     return WORK_TYPES.filter(w => w.dept === dept && w.status === "Активний");
@@ -453,14 +705,16 @@
 
     const breaksText = BREAKS_BY_DEPT[user.dept] || "Графік перерв згідно з відділом";
     document.getElementById("userTitle").textContent = `${user.name} (${user.role})`;
-    document.getElementById("userMeta").textContent = `Відділ: ${user.dept} • ${breaksText}`;
+    document.getElementById("userMeta").textContent = `${user.dept} • ${breaksText}`;
 
     if (user.role === "Працівник") {
       document.getElementById("workerPanel").classList.remove("hidden");
       document.getElementById("managerPanel").classList.add("hidden");
       const tasks = getDeptTasks(user.dept);
       const sel = document.getElementById("taskSelect");
-      sel.innerHTML = tasks.map(t => `<option value="${t.name}" data-code="${t.code}">${t.code} — ${t.name}</option>`).join("");
+      sel.innerHTML = tasks.map(t =>
+        `<option value="${escapeHtml(t.name)}" data-code="${escapeHtml(t.code)}">${escapeHtml(t.code)} — ${escapeHtml(t.name)}</option>`
+      ).join("");
       renderWorkerLog();
     } else {
       document.getElementById("workerPanel").classList.add("hidden");
@@ -489,7 +743,7 @@
     const code = sel.options[sel.selectedIndex]?.dataset.code || "";
     activeTask = { task, code, start: nowTime() };
     document.getElementById("activeWorkBox").innerHTML =
-      `<span class="badge ok">В роботі з ${activeTask.start}: ${code ? code + " — " : ""}${task}</span>`;
+      `<span class="badge ok">В роботі з ${escapeHtml(activeTask.start)}: ${escapeHtml(code ? code + " — " : "")}${escapeHtml(task)}</span>`;
     document.getElementById("startTaskForm").classList.add("hidden");
     document.getElementById("finishTaskForm").classList.remove("hidden");
     sendToBackend({ action: "start_task", user: currentUser.login, dept: currentUser.dept, code, task, start: activeTask.start });
@@ -526,7 +780,7 @@
     document.getElementById("finishTaskForm").classList.add("hidden");
     document.getElementById("startTaskForm").classList.remove("hidden");
     document.getElementById("activeWorkBox").innerHTML = mode === "end"
-      ? `<span class="badge">Зміну завершено о ${end}</span>`
+      ? `<span class="badge">Зміну завершено о ${escapeHtml(end)}</span>`
       : `<span class="badge warn">Оберіть наступну зайнятість</span>`;
     renderWorkerLog();
     showToast("Проміжний результат збережено");
@@ -537,11 +791,11 @@
     const mine = workLogs.filter(x => x.user === currentUser.name);
     tbody.innerHTML = mine.map(r => `
       <tr>
-        <td>${r.time}</td>
-        <td>${r.code || "—"}</td>
-        <td>${r.task}</td>
-        <td><strong>${r.qty}</strong></td>
-        <td><span class="badge ok">${r.status}</span></td>
+        <td data-label="Час">${escapeHtml(r.time)}</td>
+        <td data-label="Код">${escapeHtml(r.code || "—")}</td>
+        <td data-label="Вид зайнятості">${escapeHtml(r.task)}</td>
+        <td data-label="К-сть"><strong>${escapeHtml(r.qty)}</strong></td>
+        <td data-label="Статус"><span class="badge ok">${escapeHtml(r.status)}</span></td>
       </tr>
     `).join("");
   }
@@ -570,11 +824,11 @@
     const tbody = document.getElementById("summaryBody");
     tbody.innerHTML = rowsData.map(item => `
       <tr>
-        <td>${item.code}</td>
-        <td>${item.task}</td>
-        <td>${item.sum} шт.</td>
-        <td style="max-width: 140px;">
-          <input type="number" min="0" data-code="${item.code}" data-task="${item.task}" value="${item.sum}" />
+        <td data-label="Код">${escapeHtml(item.code)}</td>
+        <td data-label="Вид робіт">${escapeHtml(item.task)}</td>
+        <td data-label="Заявлено">${escapeHtml(item.sum)} шт.</td>
+        <td data-label="Підтвердити" class="full-cell" style="max-width: 150px;">
+          <input type="number" inputmode="numeric" min="0" data-code="${escapeHtml(item.code)}" data-task="${escapeHtml(item.task)}" value="${item.sum}" />
         </td>
       </tr>
     `).join("");
@@ -609,11 +863,15 @@
 
   function renderDowntimes() {
     const tbody = document.getElementById("downtimeBody");
+    if (!downtimes.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="muted">Простоїв за сьогодні немає</td></tr>`;
+      return;
+    }
     tbody.innerHTML = downtimes.map(d => `
       <tr>
-        <td>${d.time}</td>
-        <td>${d.target}</td>
-        <td><span class="badge warn">${d.reason}</span></td>
+        <td data-label="Час">${escapeHtml(d.time)}</td>
+        <td data-label="Кому">${escapeHtml(d.target)}</td>
+        <td data-label="Причина"><span class="badge warn">${escapeHtml(d.reason)}</span></td>
       </tr>
     `).join("");
   }
@@ -622,7 +880,7 @@
     const q = document.getElementById("catalogSearch").value.trim().toLowerCase();
     const dd = document.getElementById("catalogDropdown");
     const matches = CATALOG.filter(item =>
-      item.sn.toLowerCase().includes(q) || item.name.toLowerCase().includes(q)
+      String(item.sn || "").toLowerCase().includes(q) || String(item.name || "").toLowerCase().includes(q)
     ).slice(0, 12);
 
     if (!matches.length) {
@@ -630,18 +888,22 @@
       return;
     }
 
-    dd.innerHTML = matches.map(m => `
-      <div class="dropdown-item" onclick='selectCatalogItem(${JSON.stringify(m)})'>
-        <span class="sn">${m.sn}</span>${m.name}
+    dd.innerHTML = matches.map((m, idx) => `
+      <div class="dropdown-item" data-idx="${idx}" onclick="selectCatalogItemByIndex(${idx})">
+        <span class="sn">${escapeHtml(m.sn)}</span>${escapeHtml(m.name)}
       </div>
     `).join("");
+    dd._matches = matches;
     dd.style.display = "block";
   }
 
-  function selectCatalogItem(item) {
+  function selectCatalogItemByIndex(idx) {
+    const dd = document.getElementById("catalogDropdown");
+    const item = dd._matches && dd._matches[idx];
+    if (!item) return;
     selectedCatalogItem = item;
     document.getElementById("catalogSearch").value = `${item.sn} — ${item.name}`;
-    document.getElementById("catalogDropdown").style.display = "none";
+    dd.style.display = "none";
     document.getElementById("orderQty").focus();
   }
 
@@ -655,7 +917,9 @@
     const qty = Number(document.getElementById("orderQty").value || 0);
     if (!selectedCatalogItem) {
       const q = document.getElementById("catalogSearch").value.trim().toLowerCase();
-      selectedCatalogItem = CATALOG.find(x => x.sn.toLowerCase() === q || x.name.toLowerCase().includes(q)) || null;
+      selectedCatalogItem = CATALOG.find(x =>
+        String(x.sn || "").toLowerCase() === q || String(x.name || "").toLowerCase().includes(q)
+      ) || null;
     }
     if (!selectedCatalogItem || qty <= 0) {
       showToast("Оберіть позицію зі списку та вкажіть кількість");
@@ -666,6 +930,7 @@
     document.getElementById("catalogSearch").value = "";
     document.getElementById("orderQty").value = "1";
     renderCart();
+    showToast("Додано в кошик");
   }
 
   function removeFromCart(idx) {
@@ -681,10 +946,10 @@
     }
     tbody.innerHTML = cart.map((c, i) => `
       <tr>
-        <td><strong>${c.sn}</strong></td>
-        <td>${c.name}</td>
-        <td>${c.qty}</td>
-        <td><button class="secondary" onclick="removeFromCart(${i})">✕</button></td>
+        <td data-label="Серійний номер"><strong>${escapeHtml(c.sn)}</strong></td>
+        <td data-label="Назва">${escapeHtml(c.name)}</td>
+        <td data-label="К-сть">${escapeHtml(c.qty)}</td>
+        <td data-label="Дія"><button class="secondary icon-btn" onclick="removeFromCart(${i})">✕</button></td>
       </tr>
     `).join("");
   }
