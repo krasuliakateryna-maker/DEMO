@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Сервіс — Облік змін та замовлень (Demo)</title>
+  <title>Сервіс — Облік змін та замовлень</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -92,7 +92,7 @@
       border: 1px solid var(--border);
       background: var(--card-2);
       color: var(--text);
-      font-size: 16px; /* 16px запобігає автозуму на iOS */
+      font-size: 16px;
     }
 
     input[type="number"] {
@@ -182,7 +182,6 @@
       background: rgba(245, 158, 11, 0.1);
     }
 
-    /* Вкладки керівника */
     .tabs {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -205,7 +204,6 @@
       border-color: var(--accent);
     }
 
-    /* Автодоповнення по запчастинах */
     .autocomplete-box {
       position: relative;
     }
@@ -250,7 +248,6 @@
       font-size: 12px;
     }
 
-    /* Таблиці на десктопі + картки на мобільному */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -293,7 +290,6 @@
       display: none !important;
     }
 
-    /* Мобільна адаптація */
     @media (max-width: 640px) {
       body {
         padding: 10px 10px calc(84px + env(safe-area-inset-bottom));
@@ -306,11 +302,7 @@
       .row button:not(.icon-btn) {
         flex: 1 1 100%;
       }
-      .demo-row button {
-        flex: 1 1 100%;
-      }
 
-      /* Перетворюємо рядки таблиць на компактні мобільні картки */
       table.mobile-cards thead {
         display: none;
       }
@@ -360,21 +352,17 @@
   <!-- ВХІД -->
   <div id="loginScreen" class="card">
     <h1>Вхід у систему обліку</h1>
-    <p class="muted" style="margin-top: 0;">Введіть логін та пароль з аркуша «Працівники» або скористайтеся швидким демо-входом.</p>
-    <div class="stack" style="margin-bottom: 14px;">
+    <p class="muted" style="margin-top: 0;">Введіть логін та пароль з аркуша «Працівники».</p>
+    <div class="stack">
       <div>
         <label class="field-label" for="loginInput">Логін</label>
-        <input id="loginInput" type="text" placeholder="Напр.: майстер1 або кер1" autocomplete="username" />
+        <input id="loginInput" type="text" placeholder="Введіть логін" autocomplete="username" />
       </div>
       <div>
         <label class="field-label" for="passInput">Пароль</label>
-        <input id="passInput" type="password" placeholder="Пароль" autocomplete="current-password" />
+        <input id="passInput" type="password" placeholder="Введіть пароль" autocomplete="current-password" />
       </div>
-      <button class="ok" onclick="handleLogin()">Увійти</button>
-    </div>
-    <div class="row demo-row">
-      <button class="secondary" onclick="quickDemo('worker')">Демо: Працівник</button>
-      <button class="secondary" onclick="quickDemo('manager')">Демо: Керівник</button>
+      <button id="loginBtn" class="ok" onclick="handleLogin()">Увійти</button>
     </div>
   </div>
 
@@ -403,7 +391,7 @@
         <div id="startTaskForm">
           <div class="stack">
             <div>
-              <label class="field-label" for="taskSelect">Вид зайнятості (з аркуша «Види_робіт»)</label>
+              <label class="field-label" for="taskSelect">Вид зайнятості</label>
               <select id="taskSelect"></select>
             </div>
             <button class="ok" onclick="startTask()">Почати роботу</button>
@@ -471,16 +459,26 @@
 
       <!-- ПРОСТОЇ -->
       <div id="mgrDowntimeSection" class="card hidden">
-        <h3>Фіксація простою</h3>
+        <h3>Фіксація та завершення простою</h3>
         <div class="stack" style="margin-bottom: 14px;">
           <div>
-            <label class="field-label" for="downtimeTarget">Кого стосується</label>
-            <select id="downtimeTarget">
-              <option value="Весь відділ">Весь відділ</option>
-              <option value="Коваленко Андрій (майстер1)">Коваленко Андрій (майстер1)</option>
-              <option value="Мельник Ірина (майстер2)">Мельник Ірина (майстер2)</option>
-            </select>
+            <label class="field-label" for="downtimeTarget">Кого стосується (закріплені працівники / відділ)</label>
+            <select id="downtimeTarget"></select>
           </div>
+
+          <div class="autocomplete-box">
+            <label class="field-label" for="downtimeOtherSearch">Або знайти працівника з іншого відділу</label>
+            <input
+              id="downtimeOtherSearch"
+              type="text"
+              placeholder="Почніть вводити ПІБ, логін або відділ..."
+              oninput="filterOtherEmployees()"
+              onfocus="filterOtherEmployees()"
+              autocomplete="off"
+            />
+            <div id="downtimeOtherDropdown" class="dropdown-list"></div>
+          </div>
+
           <div>
             <label class="field-label" for="downtimeReason">Причина простою</label>
             <select id="downtimeReason">
@@ -490,14 +488,25 @@
               <option value="Інше">Інше</option>
             </select>
           </div>
-          <button class="warn" onclick="addDowntime()">Зафіксувати простій</button>
+
+          <div class="row">
+            <div class="col">
+              <label class="field-label" for="downtimeStartInput">Час початку</label>
+              <input id="downtimeStartInput" type="time" />
+            </div>
+            <div class="col" style="align-self: flex-end;">
+              <button class="warn full-mob" onclick="addDowntime()">Почати простій</button>
+            </div>
+          </div>
         </div>
+
         <table class="mobile-cards">
           <thead>
             <tr>
-              <th>Час</th>
+              <th>Період</th>
               <th>Кому</th>
               <th>Причина</th>
+              <th>Завершення</th>
             </tr>
           </thead>
           <tbody id="downtimeBody"></tbody>
@@ -507,11 +516,11 @@
       <!-- ЗАМОВЛЕННЯ З БАЗИ -->
       <div id="mgrOrderSection" class="card hidden">
         <h3>Замовлення з «Бази»</h3>
-        <p class="muted" style="margin-top: 0;">Введіть перші літери назви або серійного номера, оберіть позицію та вкажіть кількість.</p>
+        <p class="muted" style="margin-top: 0;">Введіть перші літери назви або серійного номера, оберіть позицію з аркуша «База» та вкажіть кількість.</p>
         <div class="stack" style="margin-bottom: 14px;">
           <div class="autocomplete-box">
             <label class="field-label" for="catalogSearch">Пошук у базі</label>
-            <input id="catalogSearch" type="text" placeholder="Напр.: прокл, SN-ADH, 13 pro..." oninput="filterCatalog()" onfocus="filterCatalog()" autocomplete="off" />
+            <input id="catalogSearch" type="text" placeholder="Почніть вводити назву або серійний номер..." oninput="filterCatalog()" onfocus="filterCatalog()" autocomplete="off" />
             <div id="catalogDropdown" class="dropdown-list"></div>
           </div>
           <div class="row">
@@ -552,64 +561,19 @@
   // Вставте сюди URL вашої вебпрограми з Google Apps Script
   const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyc4uRfdxNGeZjJSPqI9vW17qJfKPvDFxbP9fJjcBp8jgXAldNevUaApdjvz5I-39uJ/exec";
 
-  // Структура з аркуша "Види_робіт": Код_роботи, Відділ, Вид_зайнятості, Норма_хв, Статус
-  let WORK_TYPES = [
-    { code: "MOD-01", dept: "Модульний ремонт", name: "Заміна дисплея", normMin: 40, status: "Активний" },
-    { code: "MOD-02", dept: "Модульний ремонт", name: "Заміна акумулятора", normMin: 25, status: "Активний" },
-    { code: "MOD-03", dept: "Модульний ремонт", name: "Заміна задньої кришки", normMin: 35, status: "Активний" },
-    { code: "MOD-04", dept: "Модульний ремонт", name: "Проклейка вологозахисту", normMin: 15, status: "Активний" },
-    { code: "BRD-01", dept: "Ремонт плат", name: "Ремонт гнізда живлення", normMin: 45, status: "Активний" },
-    { code: "BRD-02", dept: "Ремонт плат", name: "Відновлення Face ID", normMin: 60, status: "Активний" },
-    { code: "BRD-03", dept: "Ремонт плат", name: "Діагностика та пайка", normMin: 50, status: "Активний" },
-    { code: "BRD-04", dept: "Ремонт плат", name: "Чистка після вологи", normMin: 40, status: "Активний" },
-    { code: "GLS-01", dept: "Заміна скла", name: "Зрізання скла", normMin: 20, status: "Активний" },
-    { code: "GLS-02", dept: "Заміна скла", name: "Переклейка OCA / скла", normMin: 45, status: "Активний" },
-    { code: "GLS-03", dept: "Заміна скла", name: "Тестування матриці", normMin: 15, status: "Активний" }
-  ];
-
-  let BREAKS_BY_DEPT = {
-    "Модульний ремонт": "Перерви: 11:00–11:15, обід 13:00–13:45, 16:00–16:15",
-    "Ремонт плат": "Перерви: 11:30–11:45, обід 13:30–14:15, 16:30–16:45",
-    "Заміна скла": "Перерви: 11:15–11:30, обід 13:15–14:00, 16:15–16:30"
-  };
-
-  const DEMO_USERS = [
-    { id: "EMP-01", name: "Коваленко Андрій", dept: "Модульний ремонт", role: "Працівник", login: "майстер1", pass: "1234" },
-    { id: "EMP-02", name: "Мельник Ірина", dept: "Модульний ремонт", role: "Працівник", login: "майстер2", pass: "1234" },
-    { id: "MGR-01", name: "Петренко Віктор", dept: "Модульний ремонт", role: "Керівник", login: "кер1", pass: "1234" }
-  ];
-
-  let CATALOG = [
-    { sn: "SN-PRG-JCID", name: "Програматор JCID V1SE / V1S Pro" },
-    { sn: "SN-PRG-ADP", name: "Набір плат розширення (адаптерів) до програматора" },
-    { sn: "SN-SCN-2D01", name: "2D-сканер штрих-кодів та QR-кодів" },
-    { sn: "SN-PRN-LBL1", name: "Термопринтер для друку етикеток" },
-    { sn: "SN-ESD-MAT1", name: "Антистатичний килимок (ESD) з браслетом" },
-    { sn: "SN-EQP-SEP1", name: "Сепаратор (підігрівач дисплеїв)" },
-    { sn: "SN-EQP-PSU1", name: "Лабораторний блок живлення (ЛБЖ)" },
-    { sn: "SN-ADH-IP11", name: "Проклейка дисплея вологозахисна для iPhone 11" },
-    { sn: "SN-ADH-IP12P", name: "Проклейка дисплея вологозахисна для iPhone 12 / 12 Pro" },
-    { sn: "SN-ADH-IP13", name: "Проклейка дисплея вологозахисна для iPhone 13" },
-    { sn: "SN-ADH-IP13P", name: "Проклейка дисплея вологозахисна для iPhone 13 Pro" },
-    { sn: "SN-ADH-IP13PM", name: "Проклейка дисплея вологозахисна для iPhone 13 Pro Max" },
-    { sn: "SN-ADH-IP14P", name: "Проклейка дисплея вологозахисна для iPhone 14 Pro" },
-    { sn: "SN-ADH-IP14PM", name: "Проклейка дисплея вологозахисна для iPhone 14 Pro Max" },
-    { sn: "SN-ADH-IP15", name: "Проклейка дисплея / задньої кришки вологозахисна для iPhone 15 / 15 Plus" },
-    { sn: "SN-ADH-IP15P", name: "Проклейка дисплея / задньої кришки вологозахисна для iPhone 15 Pro / 15 Pro Max" },
-    { sn: "SN-ADH-SGS23", name: "Проклейка задньої кришки вологозахисна для Samsung Galaxy S23 / S23+ / S23 Ultra / S23 FE" },
-    { sn: "SN-CHM-GLU1", name: "Клей-герметик B-7000 / T-7000" },
-    { sn: "SN-SLD-FLUX", name: "Флюс для пайки безотмивний" }
-  ];
+  let WORK_TYPES = [];
+  let BREAKS_BY_DEPT = {};
+  let TEAM_MEMBERS = [];
+  let ALL_EMPLOYEES = [];
+  let CATALOG = [];
 
   let currentUser = null;
   let activeTask = null;
   let selectedCatalogItem = null;
+  let selectedExternalEmployee = null;
   let cart = [];
 
-  let workLogs = [
-    { time: "09:00–11:00", code: "MOD-01", user: "Коваленко Андрій", dept: "Модульний ремонт", task: "Заміна дисплея", qty: 3, status: "Завершено" },
-    { time: "09:15–11:00", code: "MOD-02", user: "Мельник Ірина", dept: "Модульний ремонт", task: "Заміна акумулятора", qty: 4, status: "Завершено" }
-  ];
+  let workLogs = [];
   let downtimes = [];
 
   function escapeHtml(str) {
@@ -621,7 +585,7 @@
   }
 
   function getDeptTasks(dept) {
-    return WORK_TYPES.filter(w => w.dept === dept && w.status === "Активний");
+    return WORK_TYPES.filter(w => w.dept === dept && (!w.status || w.status === "Активний"));
   }
 
   function showToast(msg) {
@@ -629,11 +593,14 @@
     t.textContent = msg;
     t.style.display = "block";
     clearTimeout(t._timer);
-    t._timer = setTimeout(() => { t.style.display = "none"; }, 2800);
+    t._timer = setTimeout(() => { t.style.display = "none"; }, 3000);
   }
 
   async function sendToBackend(payload, retries = 3) {
-    if (!WEBHOOK_URL) return { demo: true };
+    if (!WEBHOOK_URL) {
+      showToast("Не вказано WEBHOOK_URL вебпрограми Apps Script");
+      return { ok: false, error: "Missing WEBHOOK_URL" };
+    }
 
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
@@ -648,7 +615,7 @@
         if (attempt === retries) {
           console.warn("Webhook failed after retries:", e);
           showToast("Проблема зі зв'язком — спробуйте ще раз за кілька секунд");
-          return { offline: true };
+          return { ok: false, offline: true };
         }
         await new Promise(r => setTimeout(r, attempt * 600));
       }
@@ -657,45 +624,35 @@
 
   function applyRemoteData(data) {
     if (!data || typeof data !== "object") return;
-    if (Array.isArray(data.work_types) && data.work_types.length) {
-      WORK_TYPES = data.work_types;
-    }
-    if (data.breaks && typeof data.breaks === "object") {
-      BREAKS_BY_DEPT = { ...BREAKS_BY_DEPT, ...data.breaks };
-    }
-    if (Array.isArray(data.catalog) && data.catalog.length) {
-      CATALOG = data.catalog;
-    }
-  }
-
-  function quickDemo(role) {
-    const user = role === "manager" ? DEMO_USERS[2] : DEMO_USERS[0];
-    startSession(user);
+    WORK_TYPES = Array.isArray(data.work_types) ? data.work_types : [];
+    BREAKS_BY_DEPT = (data.breaks && typeof data.breaks === "object") ? data.breaks : {};
+    CATALOG = Array.isArray(data.catalog) ? data.catalog : [];
+    TEAM_MEMBERS = Array.isArray(data.team_members) ? data.team_members : [];
+    ALL_EMPLOYEES = Array.isArray(data.all_employees) ? data.all_employees : [];
+    workLogs = Array.isArray(data.today_logs) ? data.today_logs : [];
+    downtimes = Array.isArray(data.today_downtimes) ? data.today_downtimes : [];
+    activeTask = data.active_task || null;
   }
 
   async function handleLogin() {
     const l = document.getElementById("loginInput").value.trim();
     const p = document.getElementById("passInput").value.trim();
-
-    if (WEBHOOK_URL) {
-      const resp = await sendToBackend({ action: "login", login: l, password: p });
-      if (resp && resp.ok && resp.user) {
-        applyRemoteData(resp);
-        startSession(resp.user);
-        return;
-      }
-      if (resp && resp.ok === false) {
-        showToast("Невірний логін або пароль");
-        return;
-      }
-    }
-
-    const found = DEMO_USERS.find(u => u.login === l && u.pass === p);
-    if (!found) {
-      showToast("Невірний логін або пароль (або натисніть кнопку Демо)");
+    if (!l || !p) {
+      showToast("Введіть логін і пароль");
       return;
     }
-    startSession(found);
+
+    const btn = document.getElementById("loginBtn");
+    btn.disabled = true;
+    const resp = await sendToBackend({ action: "login", login: l, password: p });
+    btn.disabled = false;
+
+    if (resp && resp.ok && resp.user) {
+      applyRemoteData(resp);
+      startSession(resp.user);
+      return;
+    }
+    showToast(resp && resp.error ? resp.error : "Невірний логін або пароль");
   }
 
   function startSession(user) {
@@ -703,23 +660,38 @@
     document.getElementById("loginScreen").classList.add("hidden");
     document.getElementById("appScreen").classList.remove("hidden");
 
-    const breaksText = BREAKS_BY_DEPT[user.dept] || "Графік перерв згідно з відділом";
+    const breaksText = BREAKS_BY_DEPT[user.dept] || "";
     document.getElementById("userTitle").textContent = `${user.name} (${user.role})`;
-    document.getElementById("userMeta").textContent = `${user.dept} • ${breaksText}`;
+    document.getElementById("userMeta").textContent = breaksText ? `${user.dept} • ${breaksText}` : user.dept;
 
     if (user.role === "Працівник") {
       document.getElementById("workerPanel").classList.remove("hidden");
       document.getElementById("managerPanel").classList.add("hidden");
       const tasks = getDeptTasks(user.dept);
       const sel = document.getElementById("taskSelect");
-      sel.innerHTML = tasks.map(t =>
-        `<option value="${escapeHtml(t.name)}" data-code="${escapeHtml(t.code)}">${escapeHtml(t.code)} — ${escapeHtml(t.name)}</option>`
-      ).join("");
+      sel.innerHTML = tasks.length
+        ? tasks.map(t => `<option value="${escapeHtml(t.name)}" data-code="${escapeHtml(t.code)}">${escapeHtml(t.code ? t.code + " — " : "")}${escapeHtml(t.name)}</option>`).join("")
+        : `<option value="">Немає активних видів робіт для відділу</option>`;
+
+      if (activeTask) {
+        document.getElementById("activeWorkBox").innerHTML =
+          `<span class="badge ok">В роботі з ${escapeHtml(activeTask.start)}: ${escapeHtml(activeTask.code ? activeTask.code + " — " : "")}${escapeHtml(activeTask.task)}</span>`;
+        document.getElementById("startTaskForm").classList.add("hidden");
+        document.getElementById("finishTaskForm").classList.remove("hidden");
+      } else {
+        document.getElementById("activeWorkBox").innerHTML =
+          `<span class="badge warn">Зміна не розпочата / задача не обрана</span>`;
+        document.getElementById("startTaskForm").classList.remove("hidden");
+        document.getElementById("finishTaskForm").classList.add("hidden");
+      }
+
       renderWorkerLog();
     } else {
       document.getElementById("workerPanel").classList.add("hidden");
       document.getElementById("managerPanel").classList.remove("hidden");
       renderSummary();
+      initDowntimeForm();
+      populateDowntimeTargets();
       renderDowntimes();
       renderCart();
     }
@@ -728,6 +700,10 @@
   function logout() {
     currentUser = null;
     activeTask = null;
+    selectedExternalEmployee = null;
+    selectedCatalogItem = null;
+    cart = [];
+    document.getElementById("passInput").value = "";
     document.getElementById("appScreen").classList.add("hidden");
     document.getElementById("loginScreen").classList.remove("hidden");
   }
@@ -737,16 +713,58 @@
     return d.toTimeString().slice(0, 5);
   }
 
+  function calcDurationMinutes(startStr, endStr) {
+    if (!startStr || !endStr) return 0;
+    const [sh, sm] = startStr.split(":").map(Number);
+    const [eh, em] = endStr.split(":").map(Number);
+    if ([sh, sm, eh, em].some(Number.isNaN)) return 0;
+    let diff = (eh * 60 + em) - (sh * 60 + sm);
+    if (diff < 0) diff += 1440;
+    return diff;
+  }
+
   function startTask() {
     const sel = document.getElementById("taskSelect");
     const task = sel.value;
+    if (!task) {
+      showToast("Оберіть вид зайнятості");
+      return;
+    }
     const code = sel.options[sel.selectedIndex]?.dataset.code || "";
-    activeTask = { task, code, start: nowTime() };
+    const start = nowTime();
+    const record_id = "WRK-" + Date.now();
+
+    activeTask = { record_id, task, code, start };
+    workLogs.unshift({
+      record_id,
+      type: "Робота",
+      time: `з ${start}`,
+      start,
+      end: "",
+      code,
+      user: currentUser.name,
+      login: currentUser.login,
+      dept: currentUser.dept,
+      task,
+      qty: "",
+      status: "В_роботі"
+    });
+
     document.getElementById("activeWorkBox").innerHTML =
-      `<span class="badge ok">В роботі з ${escapeHtml(activeTask.start)}: ${escapeHtml(code ? code + " — " : "")}${escapeHtml(task)}</span>`;
+      `<span class="badge ok">В роботі з ${escapeHtml(start)}: ${escapeHtml(code ? code + " — " : "")}${escapeHtml(task)}</span>`;
     document.getElementById("startTaskForm").classList.add("hidden");
     document.getElementById("finishTaskForm").classList.remove("hidden");
-    sendToBackend({ action: "start_task", user: currentUser.login, dept: currentUser.dept, code, task, start: activeTask.start });
+    renderWorkerLog();
+
+    sendToBackend({
+      action: "start_task",
+      record_id,
+      user: currentUser.login,
+      dept: currentUser.dept,
+      code,
+      task,
+      start
+    });
     showToast(`Розпочато: ${task}`);
   }
 
@@ -754,17 +772,37 @@
     if (!activeTask) return;
     const qty = Number(document.getElementById("qtyInput").value || 0);
     const end = nowTime();
-    workLogs.push({
-      time: `${activeTask.start}–${end}`,
-      code: activeTask.code,
-      user: currentUser.name,
-      dept: currentUser.dept,
-      task: activeTask.task,
-      qty,
-      status: mode === "end" ? "Зміну завершено" : "Зафіксовано"
-    });
+    const durMin = calcDurationMinutes(activeTask.start, end);
+    const statusText = mode === "end" ? "Завершення_зміни" : "Проміжний_результат";
+
+    const existing = workLogs.find(x => x.record_id === activeTask.record_id);
+    if (existing) {
+      existing.end = end;
+      existing.time = `${activeTask.start}–${end} (${durMin} хв)`;
+      existing.durationMin = durMin;
+      existing.qty = qty;
+      existing.status = statusText;
+    } else {
+      workLogs.unshift({
+        record_id: activeTask.record_id,
+        type: "Робота",
+        time: `${activeTask.start}–${end} (${durMin} хв)`,
+        start: activeTask.start,
+        end,
+        durationMin: durMin,
+        code: activeTask.code,
+        user: currentUser.name,
+        login: currentUser.login,
+        dept: currentUser.dept,
+        task: activeTask.task,
+        qty,
+        status: statusText
+      });
+    }
+
     sendToBackend({
       action: "finish_task",
+      record_id: activeTask.record_id,
       user: currentUser.login,
       dept: currentUser.dept,
       code: activeTask.code,
@@ -783,19 +821,25 @@
       ? `<span class="badge">Зміну завершено о ${escapeHtml(end)}</span>`
       : `<span class="badge warn">Оберіть наступну зайнятість</span>`;
     renderWorkerLog();
-    showToast("Проміжний результат збережено");
+    showToast("Результат збережено");
   }
 
   function renderWorkerLog() {
     const tbody = document.getElementById("myLogBody");
-    const mine = workLogs.filter(x => x.user === currentUser.name);
+    const mine = workLogs.filter(x =>
+      x.type !== "Простій" && (x.login === currentUser.login || x.user === currentUser.name)
+    );
+    if (!mine.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="muted">Записів за сьогодні ще немає</td></tr>`;
+      return;
+    }
     tbody.innerHTML = mine.map(r => `
       <tr>
         <td data-label="Час">${escapeHtml(r.time)}</td>
         <td data-label="Код">${escapeHtml(r.code || "—")}</td>
         <td data-label="Вид зайнятості">${escapeHtml(r.task)}</td>
-        <td data-label="К-сть"><strong>${escapeHtml(r.qty)}</strong></td>
-        <td data-label="Статус"><span class="badge ok">${escapeHtml(r.status)}</span></td>
+        <td data-label="К-сть"><strong>${r.qty !== "" && r.qty !== null ? escapeHtml(r.qty) : "—"}</strong></td>
+        <td data-label="Статус"><span class="badge ${r.status === "В_роботі" ? "warn" : "ok"}">${escapeHtml(r.status)}</span></td>
       </tr>
     `).join("");
   }
@@ -806,22 +850,32 @@
       document.getElementById("mgr" + t[0].toUpperCase() + t.slice(1) + "Section").classList.toggle("hidden", t !== tab);
     });
     if (tab === "summary") renderSummary();
+    if (tab === "downtime") {
+      initDowntimeForm();
+      populateDowntimeTargets();
+    }
   }
 
   function renderSummary() {
     const tasks = getDeptTasks(currentUser.dept);
     const rowsData = tasks.map(t => ({ code: t.code, task: t.name, sum: 0 }));
 
-    workLogs.filter(x => x.dept === currentUser.dept).forEach(r => {
-      const found = rowsData.find(item => item.task === r.task);
-      if (found) {
-        found.sum += Number(r.qty || 0);
-      } else {
-        rowsData.push({ code: r.code || "—", task: r.task, sum: Number(r.qty || 0) });
-      }
-    });
+    workLogs
+      .filter(x => x.dept === currentUser.dept && x.type !== "Простій")
+      .forEach(r => {
+        const found = rowsData.find(item => item.task === r.task);
+        if (found) {
+          found.sum += Number(r.qty || 0);
+        } else {
+          rowsData.push({ code: r.code || "—", task: r.task, sum: Number(r.qty || 0) });
+        }
+      });
 
     const tbody = document.getElementById("summaryBody");
+    if (!rowsData.length) {
+      tbody.innerHTML = `<tr><td colspan="4" class="muted">Немає активних видів робіт для відділу</td></tr>`;
+      return;
+    }
     tbody.innerHTML = rowsData.map(item => `
       <tr>
         <td data-label="Код">${escapeHtml(item.code)}</td>
@@ -851,29 +905,168 @@
     showToast("Загальну кількість за день підтверджено");
   }
 
+  function initDowntimeForm() {
+    const startInp = document.getElementById("downtimeStartInput");
+    if (startInp && !startInp.value) {
+      startInp.value = nowTime();
+    }
+  }
+
+  function populateDowntimeTargets() {
+    const sel = document.getElementById("downtimeTarget");
+    if (!sel || !currentUser) return;
+
+    const options = [`<option value="Весь відділ">Весь відділ</option>`];
+    TEAM_MEMBERS.forEach(m => {
+      const label = m.login ? `${m.name} (${m.login})` : m.name;
+      options.push(`<option value="${escapeHtml(label)}">${escapeHtml(label)}</option>`);
+    });
+    sel.innerHTML = options.join("");
+  }
+
+  function filterOtherEmployees() {
+    const input = document.getElementById("downtimeOtherSearch");
+    const dd = document.getElementById("downtimeOtherDropdown");
+    if (!input || !dd) return;
+
+    selectedExternalEmployee = null;
+    const q = input.value.trim().toLowerCase();
+
+    const matches = ALL_EMPLOYEES
+      .filter(emp => {
+        if (!q) return true;
+        return (
+          String(emp.name || "").toLowerCase().includes(q) ||
+          String(emp.login || "").toLowerCase().includes(q) ||
+          String(emp.dept || "").toLowerCase().includes(q)
+        );
+      })
+      .slice(0, 12);
+
+    if (!matches.length) {
+      dd.style.display = "none";
+      return;
+    }
+
+    dd.innerHTML = matches.map((emp, idx) => `
+      <div class="dropdown-item" onclick="selectExternalEmployee(${idx})">
+        <span class="sn">${escapeHtml(emp.dept || "Відділ")}</span>${escapeHtml(emp.name)}${emp.login ? ` (${escapeHtml(emp.login)})` : ""}
+      </div>
+    `).join("");
+    dd._matches = matches;
+    dd.style.display = "block";
+  }
+
+  function selectExternalEmployee(idx) {
+    const dd = document.getElementById("downtimeOtherDropdown");
+    const emp = dd._matches && dd._matches[idx];
+    if (!emp) return;
+
+    selectedExternalEmployee = emp;
+    const label = emp.login ? `${emp.name} (${emp.login}) — ${emp.dept}` : `${emp.name} — ${emp.dept}`;
+    document.getElementById("downtimeOtherSearch").value = label;
+    dd.style.display = "none";
+  }
+
   function addDowntime() {
-    const target = document.getElementById("downtimeTarget").value;
+    const startInp = document.getElementById("downtimeStartInput");
+    const otherInp = document.getElementById("downtimeOtherSearch");
+    const start = (startInp && startInp.value) ? startInp.value : nowTime();
+    const typedOther = otherInp ? otherInp.value.trim() : "";
+
+    let target = document.getElementById("downtimeTarget").value;
+    if (selectedExternalEmployee) {
+      target = selectedExternalEmployee.login
+        ? `${selectedExternalEmployee.name} (${selectedExternalEmployee.login}) [${selectedExternalEmployee.dept}]`
+        : `${selectedExternalEmployee.name} [${selectedExternalEmployee.dept}]`;
+    } else if (typedOther) {
+      target = typedOther;
+    }
+
     const reason = document.getElementById("downtimeReason").value;
-    const item = { time: nowTime(), target, reason };
-    downtimes.push(item);
-    sendToBackend({ action: "add_downtime", dept: currentUser.dept, manager: currentUser.name, ...item });
+    const id = "DWN-" + Date.now();
+
+    const item = {
+      id,
+      start,
+      end: "",
+      durationMin: null,
+      target,
+      reason,
+      status: "Активний"
+    };
+    downtimes.unshift(item);
+
+    selectedExternalEmployee = null;
+    if (otherInp) otherInp.value = "";
+    if (startInp) startInp.value = nowTime();
+
+    sendToBackend({
+      action: "add_downtime",
+      id,
+      dept: currentUser.dept,
+      manager: currentUser.name,
+      time: start,
+      target,
+      reason
+    });
     renderDowntimes();
-    showToast("Простій зафіксовано");
+    showToast("Простій розпочато");
+  }
+
+  function finishDowntime(idx) {
+    const item = downtimes[idx];
+    if (!item) return;
+    const endInp = document.getElementById(`dtEnd_${idx}`);
+    const end = (endInp && endInp.value) ? endInp.value : nowTime();
+    const durationMin = calcDurationMinutes(item.start, end);
+
+    item.end = end;
+    item.durationMin = durationMin;
+    item.status = "Завершено";
+
+    sendToBackend({
+      action: "end_downtime",
+      id: item.id,
+      dept: currentUser.dept,
+      manager: currentUser.name,
+      target: item.target,
+      reason: item.reason,
+      start: item.start,
+      end,
+      duration_min: durationMin
+    });
+    renderDowntimes();
+    showToast(`Простій завершено о ${end}`);
   }
 
   function renderDowntimes() {
     const tbody = document.getElementById("downtimeBody");
     if (!downtimes.length) {
-      tbody.innerHTML = `<tr><td colspan="3" class="muted">Простоїв за сьогодні немає</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" class="muted">Простоїв за сьогодні немає</td></tr>`;
       return;
     }
-    tbody.innerHTML = downtimes.map(d => `
-      <tr>
-        <td data-label="Час">${escapeHtml(d.time)}</td>
-        <td data-label="Кому">${escapeHtml(d.target)}</td>
-        <td data-label="Причина"><span class="badge warn">${escapeHtml(d.reason)}</span></td>
-      </tr>
-    `).join("");
+    tbody.innerHTML = downtimes.map((d, i) => {
+      const period = d.end
+        ? `${escapeHtml(d.start)}–${escapeHtml(d.end)}${d.durationMin !== "" && d.durationMin !== null ? ` (${escapeHtml(d.durationMin)} хв)` : ""}`
+        : `з ${escapeHtml(d.start)} (триває)`;
+
+      const endControl = d.end
+        ? `<span class="badge ok">Закрито (${escapeHtml(d.end)})</span>`
+        : `<div class="row" style="gap: 6px; flex-wrap: nowrap;">
+             <input id="dtEnd_${i}" type="time" value="${escapeHtml(nowTime())}" style="min-height: 38px; padding: 6px 8px; font-size: 14px; width: auto;" />
+             <button class="ok icon-btn" style="min-height: 38px; padding: 6px 10px;" onclick="finishDowntime(${i})">Завершити</button>
+           </div>`;
+
+      return `
+        <tr>
+          <td data-label="Період">${period}</td>
+          <td data-label="Кому">${escapeHtml(d.target)}</td>
+          <td data-label="Причина"><span class="badge warn">${escapeHtml(d.reason)}</span></td>
+          <td data-label="Завершення" class="full-cell">${endControl}</td>
+        </tr>
+      `;
+    }).join("");
   }
 
   function filterCatalog() {
@@ -881,7 +1074,7 @@
     const dd = document.getElementById("catalogDropdown");
     const matches = CATALOG.filter(item =>
       String(item.sn || "").toLowerCase().includes(q) || String(item.name || "").toLowerCase().includes(q)
-    ).slice(0, 12);
+    ).slice(0, 15);
 
     if (!matches.length) {
       dd.style.display = "none";
@@ -889,7 +1082,7 @@
     }
 
     dd.innerHTML = matches.map((m, idx) => `
-      <div class="dropdown-item" data-idx="${idx}" onclick="selectCatalogItemByIndex(${idx})">
+      <div class="dropdown-item" onclick="selectCatalogItemByIndex(${idx})">
         <span class="sn">${escapeHtml(m.sn)}</span>${escapeHtml(m.name)}
       </div>
     `).join("");
@@ -908,8 +1101,11 @@
   }
 
   document.addEventListener("click", (e) => {
-    if (!e.target.closest(".autocomplete-box")) {
+    if (!e.target.closest("#catalogDropdown") && !e.target.closest("#catalogSearch")) {
       document.getElementById("catalogDropdown").style.display = "none";
+    }
+    if (!e.target.closest("#downtimeOtherDropdown") && !e.target.closest("#downtimeOtherSearch")) {
+      document.getElementById("downtimeOtherDropdown").style.display = "none";
     }
   });
 
@@ -922,7 +1118,7 @@
       ) || null;
     }
     if (!selectedCatalogItem || qty <= 0) {
-      showToast("Оберіть позицію зі списку та вкажіть кількість");
+      showToast("Оберіть позицію зі списку «База» та вкажіть кількість");
       return;
     }
     cart.push({ ...selectedCatalogItem, qty });
